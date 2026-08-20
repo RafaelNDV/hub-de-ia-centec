@@ -1,8 +1,43 @@
 name: hub-ia-dev
 
 services:
+  frontend:
+    image: node:22-bookworm-slim
+    pull_policy: missing
+    container_name: hub-ia-frontend-dev
+    working_dir: /app
+    command: ['sh', '/app/scripts/dev-frontend-entrypoint.sh']
+    volumes:
+      - ./:/app
+      - frontend-node-modules:/app/node_modules
+      - frontend-npm-cache:/root/.npm
+    ports:
+      - ${DEV_FRONTEND_PORT:-5173}:5173
+    environment:
+      CHOKIDAR_USEPOLLING: 'true'
+      CYPRESS_INSTALL_BINARY: '0'
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - open-webui
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:5173').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 10m
+    restart: unless-stopped
+
   backend:
     image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:-v0.11.0}
+    pull_policy: missing
     container_name: hub-ia-backend-dev
     working_dir: /app/backend
     command:
@@ -37,6 +72,8 @@ services:
 
 volumes:
   open-webui-dev:
+  frontend-node-modules:
+  frontend-npm-cache:
 
 networks:
   open-webui:

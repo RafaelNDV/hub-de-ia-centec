@@ -6,7 +6,6 @@ $ErrorActionPreference = 'Stop'
 
 $repoRoot = (Resolve-Path (Join-Path $PSScriptRoot '..')).Path
 $devCompose = Join-Path $repoRoot 'docker-compose.dev.yaml'
-$dependencyMarker = Join-Path $repoRoot 'node_modules\.hub-ia-package-lock.sha256'
 
 Push-Location $repoRoot
 
@@ -17,66 +16,80 @@ try {
         throw 'Docker Desktop nao esta acessivel.'
     }
 
-    Write-Host '[20%] Garantindo que o Ollama e a rede compartilhada estejam ativos...'
-    docker compose up -d --no-build ollama
+    Write-Host '[20%] Verificando a rede compartilhada...'
+    docker network inspect hub-ia_default 2>$null | Out-Null
     if ($LASTEXITCODE -ne 0) {
-        throw 'Nao foi possivel iniciar o Ollama.'
+        docker network create hub-ia_default | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Nao foi possivel criar a rede hub-ia_default.'
+        }
     }
 
-    Write-Host '[35%] Iniciando o backend de desenvolvimento...'
+    $ollamaExists = docker container inspect ollama --format '{{.State.Status}}' 2>$null
+    if ($LASTEXITCODE -eq 0 -and $ollamaExists -ne 'running') {
+        Write-Host '[30%] Iniciando o container Ollama existente, sem pull...'
+        docker start ollama | Out-Null
+        if ($LASTEXITCODE -ne 0) {
+            throw 'Nao foi possivel iniciar o container Ollama existente.'
+        }
+    } elseif ($LASTEXITCODE -ne 0) {
+        Write-Warning 'O container Ollama nao existe. O ambiente dev iniciara sem modelos locais.'
+    }
+
+    if ($ollamaExists) {
+        $ollamaNetworks = docker container inspect ollama --format '{{json .NetworkSettings.Networks}}' | ConvertFrom-Json
+        $ollamaConnected = $ollamaNetworks.PSObject.Properties.Name -contains 'hub-ia_default'
+        if (-not $ollamaConnected) {
+            docker network connect hub-ia_default ollama
+            if ($LASTEXITCODE -ne 0) {
+                throw 'Nao foi possivel conectar o Ollama a rede de desenvolvimento.'
+            }
+        }
+    }
+
+    Write-Host '[40%] Iniciando frontend e backend de desenvolvimento...'
     $env:WEBUI_DOCKER_TAG = 'v0.11.0'
-    docker compose -f $devCompose up -d --no-build
+    docker compose -f $devCompose up -d --no-build --pull missing
     if ($LASTEXITCODE -ne 0) {
-        throw 'Nao foi possivel iniciar o backend de desenvolvimento.'
+        throw 'Nao foi possivel iniciar o ambiente de desenvolvimento.'
     }
 
-    Write-Host '[50%] Aguardando o backend responder em http://localhost:8080/health ...'
-    $deadline = (Get-Date).AddMinutes(4)
+    Write-Host '[60%] Aguardando o backend e o frontend ficarem saudaveis...'
+    $deadline = (Get-Date).AddMinutes(15)
     $backendReady = $false
+    $frontendReady = $false
 
     while ((Get-Date) -lt $deadline) {
         try {
-            $health = Invoke-RestMethod -Uri 'http://localhost:8080/health' -TimeoutSec 5
-            if ($health.status -eq $true) {
-                $backendReady = $true
-                break
-            }
+            $backendHealth = Invoke-RestMethod -Uri 'http://localhost:8080/health' -TimeoutSec 5
+            $backendReady = $backendHealth.status -eq $true
         } catch {
-            Start-Sleep -Seconds 5
-        }
-    }
-
-    if (-not $backendReady) {
-        docker compose -f $devCompose logs --no-color --tail 100 backend
-        throw 'O backend nao ficou pronto dentro de quatro minutos.'
-    }
-
-    Write-Host '[70%] Verificando dependencias do frontend...'
-    $lockHash = (Get-FileHash (Join-Path $repoRoot 'package-lock.json') -Algorithm SHA256).Hash
-    $installedHash = if (Test-Path -LiteralPath $dependencyMarker) {
-        (Get-Content -Raw -LiteralPath $dependencyMarker).Trim()
-    } else {
-        ''
-    }
-
-    if ($installedHash -ne $lockHash) {
-        Write-Host 'Instalando dependencias do frontend. Esta etapa demora mais na primeira vez...'
-        npm ci
-        if ($LASTEXITCODE -ne 0) {
-            throw 'A instalacao das dependencias do frontend falhou.'
+            $backendReady = $false
         }
 
-        Set-Content -LiteralPath $dependencyMarker -Value $lockHash -NoNewline
-    } else {
-        Write-Host 'Dependencias do frontend ja estao atualizadas.'
+        try {
+            $frontendHealth = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:5173' -TimeoutSec 5
+            $frontendReady = $frontendHealth.StatusCode -eq 200
+        } catch {
+            $frontendReady = $false
+        }
+
+        if ($backendReady -and $frontendReady) {
+            break
+        }
+
+        Start-Sleep -Seconds 5
     }
 
-    Write-Host '[90%] Iniciando o frontend com atualizacao automatica...'
-    Write-Host '[100%] Abra http://localhost:5173'
-    Write-Host 'Mantenha este terminal aberto. Use Ctrl+C para parar o frontend.'
-    # Os arquivos do Pyodide ja fazem parte do repositorio. Iniciar o Vite diretamente
-    # evita baixar novamente esses pacotes a cada sessao de desenvolvimento.
-    npx vite dev --host
+    if (-not ($backendReady -and $frontendReady)) {
+        docker compose -f $devCompose logs --no-color --tail 100 backend frontend
+        throw 'O ambiente dev nao ficou pronto dentro de quinze minutos.'
+    }
+
+    Write-Host '[100%] Ambiente de desenvolvimento pronto.'
+    Write-Host 'Frontend: http://localhost:5173'
+    Write-Host 'Backend:  http://localhost:8080'
+    Write-Host 'Os containers continuarao ativos depois que este terminal for fechado.'
 } finally {
     Pop-Location
 }

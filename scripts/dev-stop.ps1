@@ -15,8 +15,8 @@ try {
         throw 'Nao foi possivel parar o backend de desenvolvimento.'
     }
 
-    Write-Host 'Backend de desenvolvimento parado.'
-    Write-Host 'O volume com os dados de desenvolvimento foi preservado.'
+    Write-Host 'Frontend e backend de desenvolvimento parados.'
+    Write-Host 'Os volumes com dados, dependencias e cache foram preservados.'
 } finally {
     Pop-Location
 }
