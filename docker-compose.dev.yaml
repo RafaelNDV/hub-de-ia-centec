@@ -1,0 +1,44 @@
+name: hub-ia-dev
+
+services:
+  backend:
+    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG:-v0.11.0}
+    container_name: hub-ia-backend-dev
+    working_dir: /app/backend
+    command:
+      - bash
+      - start.sh
+      - --reload
+      - --reload-dir
+      - /app/backend/open_webui
+    volumes:
+      - ./backend:/app/backend
+      - open-webui-dev:/app/backend/data
+    ports:
+      - ${DEV_BACKEND_PORT:-8080}:8080
+    environment:
+      CORS_ALLOW_ORIGIN: http://localhost:${DEV_FRONTEND_PORT:-5173};http://localhost:${DEV_BACKEND_PORT:-8080}
+      ENV: dev
+      OLLAMA_BASE_URL: http://ollama:11434
+      WEBUI_NAME: Hub de IA Centec
+      WEBUI_SECRET_KEY_FILE: /app/backend/data/.webui_secret_key
+      WATCHFILES_FORCE_POLLING: 'true'
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    networks:
+      - open-webui
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', 'http://localhost:8080/health']
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 180s
+    restart: unless-stopped
+
+volumes:
+  open-webui-dev:
+
+networks:
+  open-webui:
+    external: true
+    name: hub-ia_default

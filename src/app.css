@@ -918,3 +918,182 @@ html.high-contrast:not(.dark) .shimmer {
 	color: var(--color-gray-700);
 	-webkit-text-fill-color: var(--color-gray-700);
 }
+
+/* Hub de IA Centec: small, isolated institutional theme overrides. */
+:root {
+	--centec-primary: #014572;
+	--centec-primary-dark: #01395f;
+	--centec-primary-medium: #02649b;
+	--centec-primary-light: #e7f3fb;
+	--centec-accent: #e96723;
+}
+
+::selection {
+	background: color-mix(in srgb, var(--centec-primary-medium) 28%, transparent);
+}
+
+#auth-page .centec-auth-background {
+	background:
+		radial-gradient(circle at 15% 15%, rgb(2 100 155 / 16%), transparent 32rem),
+		linear-gradient(145deg, #f8fcff 0%, var(--centec-primary-light) 100%);
+}
+
+.dark #auth-page .centec-auth-background {
+	background:
+		radial-gradient(circle at 15% 15%, rgb(2 100 155 / 25%), transparent 32rem),
+		linear-gradient(145deg, #071720 0%, #0b2638 100%);
+}
+
+#auth-login-card.centec-auth-card {
+	padding: 2rem;
+	border: 1px solid rgb(1 69 114 / 14%);
+	border-top: 4px solid var(--centec-primary);
+	border-radius: 1.25rem;
+	background: rgb(255 255 255 / 88%);
+	box-shadow: 0 24px 60px rgb(1 57 95 / 13%);
+	backdrop-filter: blur(12px);
+}
+
+.dark #auth-login-card.centec-auth-card {
+	border-color: rgb(231 243 251 / 12%);
+	border-top-color: var(--centec-primary-medium);
+	background: rgb(7 23 32 / 88%);
+	box-shadow: 0 24px 60px rgb(0 0 0 / 28%);
+}
+
+.centec-auth-eyebrow {
+	width: fit-content;
+	margin: 0 auto 1rem;
+	padding: 0.25rem 0.7rem;
+	border-radius: 999px;
+	background: var(--centec-primary-light);
+	color: var(--centec-primary);
+	font-size: 0.68rem;
+	font-weight: 750;
+	letter-spacing: 0.16em;
+}
+
+.dark .centec-auth-eyebrow {
+	background: rgb(2 100 155 / 25%);
+	color: #b9e2f8;
+}
+
+.centec-auth-title {
+	color: var(--centec-primary-dark);
+}
+
+.dark .centec-auth-title {
+	color: #e7f3fb;
+}
+
+.centec-auth-subtitle {
+	margin-top: 0.4rem;
+	color: #526a78;
+	font-size: 0.8rem;
+}
+
+.dark .centec-auth-subtitle {
+	color: #a8c0ce;
+}
+
+.centec-auth-logo {
+	box-shadow:
+		0 0 0 4px white,
+		0 0 0 7px var(--centec-primary-medium);
+}
+
+.dark .centec-auth-logo {
+	box-shadow:
+		0 0 0 4px #071720,
+		0 0 0 7px var(--centec-primary-medium);
+}
+
+#auth-login-card .centec-auth-primary {
+	background: var(--centec-primary);
+	color: white;
+	box-shadow: 0 8px 20px rgb(1 69 114 / 18%);
+}
+
+#auth-login-card .centec-auth-primary:hover {
+	background: var(--centec-primary-medium);
+}
+
+.centec-auth-attribution {
+	margin-top: 1rem;
+	color: #657b87;
+	font-size: 0.68rem;
+}
+
+.dark .centec-auth-attribution {
+	color: #8ba6b5;
+}
+
+#sidebar.centec-sidebar {
+	background: color-mix(in srgb, var(--centec-primary-light) 45%, white);
+	box-shadow: inset 3px 0 0 var(--centec-primary);
+}
+
+.dark #sidebar.centec-sidebar {
+	background: color-mix(in srgb, var(--centec-primary-dark) 18%, #111827);
+	box-shadow: inset 3px 0 0 var(--centec-primary-medium);
+}
+
+.centec-sidebar-header {
+	border-bottom: 1px solid rgb(1 69 114 / 8%);
+}
+
+.centec-sidebar-logo {
+	box-shadow: 0 0 0 2px rgb(2 100 155 / 25%);
+}
+
+.centec-sidebar-brand {
+	display: flex;
+	min-width: 0;
+	flex-direction: column;
+	color: var(--centec-primary-dark);
+	line-height: 1.1;
+}
+
+.dark .centec-sidebar-brand {
+	color: #d8edf8;
+}
+
+.centec-sidebar-brand > span:first-child {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.centec-sidebar-powered {
+	margin-top: 0.15rem;
+	color: #67808e;
+	font-size: 0.58rem;
+	font-weight: 500;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+}
+
+.dark .centec-sidebar-powered {
+	color: #8ba6b5;
+}
+
+#sidebar .centec-new-chat:hover,
+#sidebar .centec-nav-item-active {
+	background: var(--centec-primary-light);
+	color: var(--centec-primary);
+}
+
+#sidebar .centec-nav-item-active {
+	box-shadow: inset 3px 0 0 var(--centec-accent);
+}
+
+.dark #sidebar .centec-new-chat:hover,
+.dark #sidebar .centec-nav-item-active {
+	background: rgb(2 100 155 / 24%);
+	color: #d8edf8;
+}
+
+:where(a, button, input, textarea, select):focus-visible {
+	outline: 2px solid var(--centec-primary-medium);
+	outline-offset: 2px;
+}
