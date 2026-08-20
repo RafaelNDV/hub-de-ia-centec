@@ -1,0 +1,183 @@
+{
+	"role": "Você é o Codex responsável por preparar, no notebook do trabalho, o ambiente de desenvolvimento do Hub de IA Centec baseado no Open WebUI.",
+	"language": "Responda em português do Brasil, usando linguagem simples e informando a porcentagem aproximada do progresso durante o trabalho.",
+	"primary_objective": "Atualizar o clone existente para a versão publicada pelo usuário e deixar o modo de desenvolvimento funcionando exatamente como no notebook de casa, sem construir uma imagem Docker personalizada.",
+	"repository": {
+		"url": "https://github.com/RafaelNDV/hub-de-ia-centec.git",
+		"remote": "origin",
+		"target_branch": "feat/centec-dev-mode",
+		"base_project_version": "Open WebUI v0.11.0",
+		"source_of_truth": "A branch remota origin/feat/centec-dev-mode. Não reaproveite as alterações locais antigas do notebook do trabalho."
+	},
+	"known_working_state_from_home_notebook": {
+		"production_reference": {
+			"url": "http://localhost:3000",
+			"purpose": "Instância original para comparação, executada por imagem pronta.",
+			"rule": "Não alterar, substituir ou apagar essa instância e seus volumes durante a preparação do modo dev."
+		},
+		"development_frontend": {
+			"url": "http://localhost:5173",
+			"runtime": "Node.js + Vite executados diretamente no código local",
+			"behavior": "Hot reload automático para mudanças no frontend."
+		},
+		"development_backend": {
+			"url": "http://localhost:8080",
+			"container": "hub-ia-backend-dev",
+			"image": "ghcr.io/open-webui/open-webui:v0.11.0",
+			"behavior": "A imagem fornece Python e dependências; a pasta local backend é montada no container e o Uvicorn recarrega automaticamente.",
+			"health_endpoint": "http://localhost:8080/health"
+		},
+		"branding": {
+			"expected_name_from_api": "Hub de IA Centec (Open WebUI)",
+			"expected_visual": "Login e barra lateral com azul institucional Centec, detalhe laranja, suporte aos temas claro e escuro e atribuição Powered by Open WebUI.",
+			"official_logo_status": "Ainda não existe asset oficial. Não inventar logo. O local reservado é static/centec."
+		},
+		"docker_resources": {
+			"shared_network": "hub-ia_default",
+			"development_data_volume": "hub-ia-dev_open-webui-dev",
+			"ollama_connection": "http://ollama:11434",
+			"important": "Os usuários, chats, configurações, volumes e modelos são locais de cada computador e não virão pelo Git."
+		}
+	},
+	"work_notebook_context": {
+		"existing_clone": "Já existe um clone antigo do repositório no notebook do trabalho.",
+		"unpublished_local_changes": "Existem mudanças locais que não receberam push. O usuário confirmou que elas não precisam ser usadas.",
+		"safe_handling": "Antes de atualizar, registre git status e faça um stash com arquivos rastreados e não rastreados, apenas como backup recuperável. Não reaplique esse stash.",
+		"unknown_existing_image": "O usuário não lembra qual imagem funcionou nesse notebook. Descubra a imagem real dos containers existentes antes de iniciar o modo dev e informe-a no relatório final.",
+		"missing_dev_backend": "O container hub-ia-backend-dev ainda não existe nesse notebook; ele deverá ser criado pelo docker-compose.dev.yaml já versionado."
+	},
+	"non_negotiable_rules": [
+		"Comece inspecionando o estado real do Git e do Docker; não adivinhe nomes de imagens ou containers.",
+		"Não use nem reaplique as mudanças locais antigas do notebook do trabalho.",
+		"Não apague volumes, bancos, modelos, imagens ou containers da instância original.",
+		"Não execute git reset --hard nem descarte mudanças antes de criar o stash de segurança.",
+		"Não faça build de imagem Docker nesta tarefa.",
+		"Não execute docker compose build.",
+		"Não implemente novas personalizações ou funcionalidades.",
+		"Não altere o Dockerfile, package-lock.json ou dependências sem um erro concreto que exija isso.",
+		"Não faça commit nem push a partir do notebook do trabalho.",
+		"Mantenha visível a atribuição ao Open WebUI.",
+		"Se houver conflito de portas, permissões ou arquivos locais, investigue e explique antes de mudar a configuração."
+	],
+	"required_files_after_update": [
+		"docker-compose.dev.yaml",
+		"scripts/dev-start.ps1",
+		"scripts/dev-stop.ps1",
+		"DEVELOPMENT_LOCAL.md",
+		"src/app.css",
+		"src/app.html",
+		"src/routes/auth/+page.svelte",
+		"src/lib/components/layout/Sidebar.svelte",
+		"static/centec/README.md"
+	],
+	"execution_plan": [
+		{
+			"step": 1,
+			"title": "Inspecionar o clone existente",
+			"actions": [
+				"Confirme o caminho da raiz do repositório.",
+				"Execute git remote -v, git branch --show-current, git status --short e git log -5 --oneline --decorate.",
+				"Confirme que origin aponta para https://github.com/RafaelNDV/hub-de-ia-centec.git. Se estiver diferente, corrija apenas o origin."
+			]
+		},
+		{
+			"step": 2,
+			"title": "Descobrir o Docker que já funciona",
+			"actions": [
+				"Confirme que o Docker Desktop está aberto com docker info.",
+				"Liste containers com docker ps -a e registre nomes, imagens, estados e portas.",
+				"Use docker inspect nos containers existentes do Open WebUI para descobrir exatamente o valor de Config.Image.",
+				"Execute docker compose ps e docker compose images quando o compose base estiver disponível.",
+				"Não pare nem recrie a instância original da porta 3000 apenas para fazer essa inspeção."
+			]
+		},
+		{
+			"step": 3,
+			"title": "Guardar e ignorar as mudanças locais antigas",
+			"actions": [
+				"Se git status mostrar qualquer mudança, execute git stash push --include-untracked -m \"backup antes de sincronizar modo dev Centec\".",
+				"Confirme que o worktree ficou limpo.",
+				"Não aplique nem faça pop desse stash nesta tarefa."
+			]
+		},
+		{
+			"step": 4,
+			"title": "Buscar a versão publicada",
+			"actions": [
+				"Execute git fetch --prune origin.",
+				"Se a branch local feat/centec-dev-mode não existir, crie-a rastreando origin/feat/centec-dev-mode.",
+				"Se ela já existir, troque para ela e atualize somente com fast-forward usando git pull --ff-only origin feat/centec-dev-mode.",
+				"Confirme que HEAD está alinhado com origin/feat/centec-dev-mode.",
+				"Verifique a existência de todos os arquivos listados em required_files_after_update."
+			]
+		},
+		{
+			"step": 5,
+			"title": "Verificar pré-requisitos sem fazer build",
+			"actions": [
+				"Registre as versões de docker, docker compose, node e npm.",
+				"Não instale ferramentas que já estejam funcionando.",
+				"Se a imagem ghcr.io/open-webui/open-webui:v0.11.0 não existir localmente, permita que o compose faça pull ou execute docker pull dessa imagem; pull não é build.",
+				"Se a rede hub-ia_default ou o Ollama não existirem, use docker compose up -d --no-build ollama a partir do compose base para criá-los sem reconstruir imagens."
+			]
+		},
+		{
+			"step": 6,
+			"title": "Iniciar o modo de desenvolvimento",
+			"actions": [
+				"Leia DEVELOPMENT_LOCAL.md e scripts/dev-start.ps1 antes de executar.",
+				"No PowerShell, a partir da raiz, execute powershell -ExecutionPolicy Bypass -File .\\scripts\\dev-start.ps1.",
+				"Na primeira execução, npm ci pode demorar por instalar dependências; isso é esperado e acontece novamente apenas quando package-lock.json muda.",
+				"Mantenha o terminal do Vite aberto. Não substitua esse fluxo por uma build de imagem."
+			]
+		},
+		{
+			"step": 7,
+			"title": "Validar o resultado",
+			"actions": [
+				"Confirme HTTP 200 em http://localhost:5173 e http://localhost:5173/auth.",
+				"Confirme que http://localhost:8080/health retorna status true.",
+				"Consulte http://localhost:8080/api/config e confirme name igual a Hub de IA Centec (Open WebUI).",
+				"Confirme docker compose -f docker-compose.dev.yaml ps e verifique hub-ia-backend-dev saudável.",
+				"Confirme visualmente o login, a barra lateral, o tema claro e o tema escuro.",
+				"Confirme que a instância original da porta 3000 e seus volumes continuam intactos."
+			]
+		}
+	],
+	"expected_first_run_behavior": [
+		"Pode haver download da imagem oficial v0.11.0 se ela ainda não existir nesse notebook.",
+		"Pode haver npm ci na primeira execução.",
+		"Será criado o container hub-ia-backend-dev.",
+		"Será criado um volume de dados dev separado caso ainda não exista.",
+		"Nenhuma imagem personalizada será construída.",
+		"Contas, conversas e modelos podem ser diferentes dos existentes no notebook de casa."
+	],
+	"failure_handling": {
+		"docker_permission": "Se docker info falhar, peça para abrir o Docker Desktop ou corrigir a permissão; não tente contornar a segurança do sistema.",
+		"port_conflict": "Se 5173 ou 8080 estiver ocupada, identifique o processo/container responsável e informe antes de alterar portas.",
+		"missing_network": "Se hub-ia_default estiver ausente, inicie apenas o serviço Ollama do compose base com --no-build.",
+		"backend_not_healthy": "Examine docker compose -f docker-compose.dev.yaml logs --tail 100 backend.",
+		"frontend_failure": "Mostre o erro real do npm/Vite. Não faça build como solução automática.",
+		"git_conflict": "Pare e informe o conflito. Não misture as mudanças antigas com a branch publicada."
+	},
+	"success_criteria": [
+		"O código local está na branch feat/centec-dev-mode e alinhado com origin.",
+		"A versão original continua acessível em http://localhost:3000, se já estava funcionando antes.",
+		"O frontend dev está acessível em http://localhost:5173.",
+		"O backend dev está saudável em http://localhost:8080.",
+		"O nome Hub de IA Centec (Open WebUI) aparece corretamente.",
+		"As alterações de frontend e backend recarregam automaticamente.",
+		"Nenhuma imagem Docker personalizada foi construída.",
+		"A imagem antiga encontrada no notebook foi identificada e informada ao usuário."
+	],
+	"final_report_format": [
+		"Estado inicial encontrado no Git e no Docker.",
+		"Nome exato da imagem que já funcionava no notebook.",
+		"Como as mudanças locais antigas foram guardadas.",
+		"Branch e commit atualmente usados.",
+		"Containers, imagens, redes e volumes usados pelo modo dev.",
+		"Resultados dos testes de 3000, 5173 e 8080.",
+		"Qualquer diferença em relação ao notebook de casa.",
+		"Comando exato para iniciar novamente no futuro."
+	]
+}

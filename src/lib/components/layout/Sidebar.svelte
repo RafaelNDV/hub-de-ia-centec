@@ -1109,7 +1109,7 @@
 		id="sidebar"
 		role="navigation"
 		aria-label={$i18n.t('Chat history')}
-		class="h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
+		class="centec-sidebar h-screen max-h-[100dvh] min-h-screen select-none {$showSidebar
 			? `${$mobile ? 'bg-gray-50 dark:bg-gray-950' : 'bg-gray-50/70 dark:bg-gray-950/70'} z-50`
 			: ' bg-transparent z-0 '} {$isApp
 			? `ml-[4.5rem] md:ml-0 `
@@ -1124,7 +1124,7 @@
 				: 'invisible'}"
 		>
 			<div
-				class="sidebar px-1 pt-1.5 pb-1 flex justify-between space-x-1 text-gray-600 dark:text-gray-400 sticky top-0 z-10 -mb-2"
+				class="centec-sidebar-header sidebar px-1 pt-1.5 pb-1 flex justify-between space-x-1 text-gray-600 dark:text-gray-400 sticky top-0 z-10 -mb-2"
 			>
 				<a
 					class="flex items-center rounded-xl size-8.5 h-full justify-center hover:bg-gray-50 dark:hover:bg-gray-900 transition no-drag-region"
@@ -1135,7 +1135,7 @@
 					<img
 						crossorigin="anonymous"
 						src="{WEBUI_BASE_URL}/static/favicon.png"
-						class="sidebar-new-chat-icon size-5 rounded-full"
+						class="centec-sidebar-logo sidebar-new-chat-icon size-5 rounded-full"
 						alt=""
 					/>
 				</a>
@@ -1143,9 +1143,12 @@
 				<a href="/" class="flex flex-1 px-0.5" on:click={newChatHandler}>
 					<div
 						id="sidebar-webui-name"
-						class=" self-center font-normal text-gray-700 dark:text-gray-200"
+						class="centec-sidebar-brand self-center font-medium text-gray-700 dark:text-gray-200"
 					>
-						{$WEBUI_NAME}
+						<span>{$WEBUI_NAME.replace(' (Open WebUI)', '')}</span>
+						{#if $WEBUI_NAME.includes('Open WebUI')}
+							<span class="centec-sidebar-powered">Open WebUI</span>
+						{/if}
 					</div>
 				</a>
 				<Tooltip
@@ -1188,7 +1191,7 @@
 					<div class="px-1 flex justify-center text-gray-700 dark:text-gray-300">
 						<a
 							id="sidebar-new-chat-button"
-							class="group grow flex items-center space-x-2 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
+							class="centec-new-chat group grow flex items-center space-x-2 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
 							href="/"
 							draggable="false"
 							on:click={newChatHandler}
@@ -1237,11 +1240,11 @@
 								>
 									<a
 										id="sidebar-{itemId}-button"
-										class="grow flex items-center space-x-2 rounded-xl px-2 py-1.5 transition {itemId ===
+										class="centec-nav-item grow flex items-center space-x-2 rounded-xl px-2 py-1.5 transition {itemId ===
 										activeMenuItemId
 											? ($settings?.highContrastMode ?? false)
-												? 'bg-black/[0.035] dark:bg-white/[0.06]'
-												: 'bg-black/[0.035] dark:bg-white/[0.045]'
+												? 'centec-nav-item-active bg-black/[0.035] dark:bg-white/[0.06]'
+												: 'centec-nav-item-active bg-black/[0.035] dark:bg-white/[0.045]'
 											: 'hover:bg-gray-50 dark:hover:bg-gray-900'}"
 										href={meta.href}
 										on:click={itemClickHandler}
