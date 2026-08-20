@@ -5,9 +5,10 @@
 	"repository": {
 		"url": "https://github.com/RafaelNDV/hub-de-ia-centec.git",
 		"remote": "origin",
-		"target_branch": "feat/centec-dev-mode",
+		"target_branch": "main",
 		"base_project_version": "Open WebUI v0.11.0",
-		"source_of_truth": "A branch remota origin/feat/centec-dev-mode. Não reaproveite as alterações locais antigas do notebook do trabalho."
+		"source_of_truth": "A branch remota origin/main depois do merge do PR de modo dev e branding Centec. Não reaproveite as alterações locais antigas do notebook do trabalho.",
+		"prerequisite": "Antes de executar este prompt no notebook do trabalho, confirme que o PR feat/centec-dev-mode -> main foi mesclado. Se os arquivos obrigatórios não existirem em origin/main, pare e informe que o merge ainda não aconteceu."
 	},
 	"known_working_state_from_home_notebook": {
 		"production_reference": {
@@ -105,9 +106,9 @@
 			"title": "Buscar a versão publicada",
 			"actions": [
 				"Execute git fetch --prune origin.",
-				"Se a branch local feat/centec-dev-mode não existir, crie-a rastreando origin/feat/centec-dev-mode.",
-				"Se ela já existir, troque para ela e atualize somente com fast-forward usando git pull --ff-only origin feat/centec-dev-mode.",
-				"Confirme que HEAD está alinhado com origin/feat/centec-dev-mode.",
+				"Troque para a branch main. Se ela não existir localmente, crie-a rastreando origin/main.",
+				"Atualize somente com fast-forward usando git pull --ff-only origin main.",
+				"Confirme que HEAD está alinhado com origin/main.",
 				"Verifique a existência de todos os arquivos listados em required_files_after_update."
 			]
 		},
@@ -158,10 +159,10 @@
 		"missing_network": "Se hub-ia_default estiver ausente, inicie apenas o serviço Ollama do compose base com --no-build.",
 		"backend_not_healthy": "Examine docker compose -f docker-compose.dev.yaml logs --tail 100 backend.",
 		"frontend_failure": "Mostre o erro real do npm/Vite. Não faça build como solução automática.",
-		"git_conflict": "Pare e informe o conflito. Não misture as mudanças antigas com a branch publicada."
+		"git_conflict": "Pare e informe o conflito. Não misture as mudanças antigas com a main atualizada."
 	},
 	"success_criteria": [
-		"O código local está na branch feat/centec-dev-mode e alinhado com origin.",
+		"O código local está na branch main e alinhado com origin/main depois do merge do PR.",
 		"A versão original continua acessível em http://localhost:3000, se já estava funcionando antes.",
 		"O frontend dev está acessível em http://localhost:5173.",
 		"O backend dev está saudável em http://localhost:8080.",
