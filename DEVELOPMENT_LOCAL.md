@@ -3,12 +3,13 @@
 Este ambiente separa a versao original da aplicacao e o codigo em desenvolvimento:
 
 - `http://localhost:3000`: Open WebUI original, executado pela imagem oficial.
-- `http://localhost:5173`: frontend local com hot reload.
+- `http://localhost:5173`: frontend local com hot reload em um container Node 22.
 - `http://localhost:8080`: backend de desenvolvimento com reload automatico.
 
 O backend de desenvolvimento reutiliza o Python e as dependencias da imagem oficial
-`v0.11.0`, mas executa os arquivos da pasta local `backend`. Nenhuma imagem nova e
-construida durante o desenvolvimento.
+`v0.11.0`, mas executa os arquivos da pasta local `backend`. O frontend usa a imagem
+oficial `node:22-bookworm-slim` e executa o Vite diretamente sobre os arquivos locais.
+Nenhuma imagem personalizada e construida durante o desenvolvimento.
 
 ## Iniciar
 
@@ -18,22 +19,24 @@ No PowerShell, a partir da raiz do repositorio:
 powershell -ExecutionPolicy Bypass -File .\scripts\dev-start.ps1
 ```
 
-Na primeira execucao, o script instala as dependencias Node com `npm ci`. Depois,
-essa etapa so e repetida quando `package-lock.json` mudar.
+Na primeira execucao, o container frontend instala as dependencias Node em um volume
+Docker. Depois, essa etapa so e repetida quando `package-lock.json` mudar. Fechar o
+terminal nao interrompe o frontend ou o backend.
 
-Mantenha o terminal aberto enquanto estiver usando o frontend. Use `Ctrl+C` para
-parar o servidor do frontend.
+## Parar o ambiente de desenvolvimento
 
-## Parar o backend de desenvolvimento
-
-Depois de interromper o frontend com `Ctrl+C`, execute:
+Para parar os dois containers de desenvolvimento, execute:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\dev-stop.ps1
 ```
 
-O comando nao apaga o volume `hub-ia-dev_open-webui-dev`. Usuarios, configuracoes
-e banco de dados do ambiente de desenvolvimento permanecem salvos.
+O comando nao apaga os volumes. Usuarios, configuracoes, banco de dados, dependencias
+Node e cache do npm permanecem salvos.
+
+O script inicia um container Ollama existente com `docker start`, quando necessario,
+mas nunca executa `docker compose up` no ambiente original. Se o Ollama nao existir,
+frontend e backend ainda iniciam normalmente para uso com APIs externas.
 
 ## O que atualiza automaticamente
 
