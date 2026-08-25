@@ -1,0 +1,67 @@
+name: hub-ia-integrations
+
+services:
+  google-workspace-mcp:
+    image: ghcr.io/taylorwilsdon/google_workspace_mcp:1.24.1
+    pull_policy: missing
+    container_name: hub-ia-google-workspace-mcp
+    env_file:
+      - .env.gmail-mcp
+    environment:
+      MCP_ENABLE_OAUTH21: 'true'
+      MCP_OAUTH_PROXY_STORAGE_BACKEND: disk
+      WORKSPACE_MCP_PORT: '8000'
+      WORKSPACE_EXTERNAL_URL: http://localhost:8000
+      GOOGLE_OAUTH_REDIRECT_URI: http://localhost:8000/oauth2callback
+      OAUTHLIB_INSECURE_TRANSPORT: '1'
+    entrypoint: []
+    command:
+      - uv
+      - run
+      - main.py
+      - --transport
+      - streamable-http
+      - --tools
+      - gmail
+      - --read-only
+    volumes:
+      - google-workspace-mcp-creds:/app/store_creds
+    ports:
+      - 127.0.0.1:8000:8000
+    networks:
+      - open-webui-prod
+      - open-webui-dev
+    restart: unless-stopped
+
+  mcp-loopback-open-webui:
+    image: ghcr.io/taylorwilsdon/google_workspace_mcp:1.24.1
+    pull_policy: missing
+    container_name: hub-ia-mcp-loopback-open-webui
+    entrypoint:
+      - python
+      - -u
+      - /proxy/mcp-loopback-proxy.py
+    environment:
+      LISTEN_HOST: 127.0.0.1
+      LISTEN_PORT: '8000'
+      UPSTREAM_HOST: google-workspace-mcp
+      UPSTREAM_PORT: '8000'
+    volumes:
+      - ./scripts/mcp-loopback-proxy.py:/proxy/mcp-loopback-proxy.py:ro
+    network_mode: container:open-webui
+    depends_on:
+      google-workspace-mcp:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  google-workspace-mcp-creds:
+    name: hub-ia-google-workspace-mcp-creds
+
+networks:
+  open-webui-prod:
+    external: true
+    name: hubdeia_default
+  open-webui-dev:
+    external: true
+    name: hub-ia_default

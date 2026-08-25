@@ -1,0 +1,33 @@
+# Future production deployment for the cloud-only trust zone.
+# Build the application image once and deploy the same tag here and in
+# docker-compose.secure.yaml. Put an HTTPS reverse proxy in front of this port.
+name: hub-ia-cloud
+
+services:
+  open-webui:
+    image: ${CENTEC_APP_IMAGE:-hub-ia-centec}:${CENTEC_APP_TAG:-local}
+    pull_policy: missing
+    ports:
+      - 127.0.0.1:${CLOUD_WEBUI_PORT:-3100}:8080
+    environment:
+      ENV: prod
+      WEBUI_NAME: Hub de IA Centec - Cloud
+      WEBUI_SECRET_KEY: ${CLOUD_WEBUI_SECRET_KEY:?Set CLOUD_WEBUI_SECRET_KEY outside the repository}
+      ENABLE_PERSISTENT_CONFIG: 'false'
+      ENABLE_OLLAMA_API: 'false'
+      ENABLE_OPENAI_API: 'true'
+      ENABLE_OPENAI_API_PASSTHROUGH: 'false'
+      OPENAI_API_BASE_URL: ${CLOUD_LLM_API_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_API_KEY: ${CLOUD_LLM_API_KEY:?Set CLOUD_LLM_API_KEY outside the repository}
+    volumes:
+      - cloud-open-webui-data:/app/backend/data
+    networks:
+      - cloud-zone
+    restart: unless-stopped
+
+volumes:
+  cloud-open-webui-data:
+
+networks:
+  cloud-zone:
+    name: hub-ia-cloud-zone
