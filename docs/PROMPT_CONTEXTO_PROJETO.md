@@ -50,6 +50,9 @@ Existem atualmente estes ambientes principais:
    - Definido em docker-compose.dev.yaml.
    - Frontend Vite/Svelte na porta 5173, com hot reload.
    - Backend Python na porta 8080, com reload de codigo.
+   - O navegador acessa somente a porta 5173; o proxy nativo do Vite encaminha
+     API, OAuth e WebSocket ao backend pela rede Docker.
+   - A porta 8080 e publicada apenas em 127.0.0.1 para diagnostico local.
    - Usa volumes separados da POC da porta 3000.
    - A inicializacao do frontend pode ser lenta no notebook, mas nao deve exigir
      uma build completa a cada alteracao.

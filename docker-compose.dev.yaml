@@ -16,6 +16,7 @@ services:
     environment:
       CHOKIDAR_USEPOLLING: 'true'
       CYPRESS_INSTALL_BINARY: '0'
+      DEV_BACKEND_URL: http://backend:8080
     depends_on:
       backend:
         condition: service_healthy
@@ -50,9 +51,9 @@ services:
       - ./backend:/app/backend
       - open-webui-dev:/app/backend/data
     ports:
-      - ${DEV_BACKEND_PORT:-8080}:8080
+      - 127.0.0.1:${DEV_BACKEND_PORT:-8080}:8080
     environment:
-      CORS_ALLOW_ORIGIN: http://localhost:${DEV_FRONTEND_PORT:-5173};http://localhost:${DEV_BACKEND_PORT:-8080}
+      CORS_ALLOW_ORIGIN: '*'
       ENV: dev
       OLLAMA_BASE_URL: http://ollama:11434
       WEBUI_NAME: Hub de IA Centec

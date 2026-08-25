@@ -203,6 +203,13 @@ docker compose -f docker-compose.dev.yaml up -d
 docker compose -f docker-compose.dev.yaml ps
 ```
 
+No ambiente de desenvolvimento, acesse `http://localhost:5173` neste notebook
+ou `http://IP_DO_NOTEBOOK:5173` em outro computador da mesma rede. O Vite atua
+como proxy leve: o navegador conversa apenas com a porta 5173, e o Vite
+encaminha internamente API, OAuth e WebSocket ao backend. A porta 8080 fica
+restrita ao proprio notebook. Alteracoes normais no frontend continuam usando
+hot reload e nao exigem build da imagem.
+
 Integracao Gmail, depois de criar `.env.gmail-mcp` a partir do exemplo:
 
 ```powershell
