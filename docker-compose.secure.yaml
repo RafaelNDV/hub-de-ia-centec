@@ -1,0 +1,95 @@
+# Future production deployment for the local-only trust zone.
+# Docker networks separate services, but production also requires host or
+# perimeter firewall rules that block AI cloud providers from this zone.
+name: hub-ia-secure
+
+services:
+  open-webui:
+    image: ${CENTEC_APP_IMAGE:-hub-ia-centec}:${CENTEC_APP_TAG:-local}
+    pull_policy: missing
+    ports:
+      - 127.0.0.1:${SECURE_WEBUI_PORT:-3200}:8080
+    environment:
+      ENV: prod
+      WEBUI_NAME: Hub de IA Centec - Seguro
+      WEBUI_SECRET_KEY: ${SECURE_WEBUI_SECRET_KEY:?Set SECURE_WEBUI_SECRET_KEY outside the repository}
+      ENABLE_PERSISTENT_CONFIG: 'false'
+      ENABLE_OPENAI_API: 'false'
+      ENABLE_OPENAI_API_PASSTHROUGH: 'false'
+      ENABLE_OLLAMA_API: 'true'
+      OLLAMA_BASE_URL: http://local-inference:11434
+    volumes:
+      - secure-open-webui-data:/app/backend/data
+    networks:
+      - secure-zone
+    depends_on:
+      local-inference:
+        condition: service_started
+    restart: unless-stopped
+
+  local-inference:
+    image: ollama/ollama:${OLLAMA_DOCKER_TAG:-latest}
+    pull_policy: missing
+    volumes:
+      - secure-model-data:/root/.ollama
+    networks:
+      - secure-zone
+    restart: unless-stopped
+
+  google-workspace-mcp:
+    image: ghcr.io/taylorwilsdon/google_workspace_mcp:${GOOGLE_WORKSPACE_MCP_TAG:-1.24.1}
+    pull_policy: missing
+    env_file:
+      - .env.gmail-mcp
+    environment:
+      MCP_ENABLE_OAUTH21: 'true'
+      MCP_OAUTH_PROXY_STORAGE_BACKEND: disk
+      WORKSPACE_MCP_PORT: '8000'
+      WORKSPACE_EXTERNAL_URL: ${SECURE_MCP_EXTERNAL_URL:-http://localhost:8000}
+      GOOGLE_OAUTH_REDIRECT_URI: ${SECURE_GOOGLE_OAUTH_REDIRECT_URI:-http://localhost:8000/oauth2callback}
+      OAUTHLIB_INSECURE_TRANSPORT: ${MCP_INSECURE_TRANSPORT:-1}
+    entrypoint: []
+    command:
+      - uv
+      - run
+      - main.py
+      - --transport
+      - streamable-http
+      - --permissions
+      - ${GMAIL_PERMISSION_LEVEL:-gmail:readonly}
+    volumes:
+      - secure-google-workspace-creds:/app/store_creds
+    ports:
+      - 127.0.0.1:${SECURE_MCP_PORT:-8000}:8000
+    networks:
+      - secure-zone
+    restart: unless-stopped
+
+  mcp-loopback-open-webui:
+    image: ghcr.io/taylorwilsdon/google_workspace_mcp:${GOOGLE_WORKSPACE_MCP_TAG:-1.24.1}
+    pull_policy: missing
+    entrypoint:
+      - python
+      - -u
+      - /proxy/mcp-loopback-proxy.py
+    environment:
+      LISTEN_HOST: 127.0.0.1
+      LISTEN_PORT: '8000'
+      UPSTREAM_HOST: google-workspace-mcp
+      UPSTREAM_PORT: '8000'
+    volumes:
+      - ./scripts/mcp-loopback-proxy.py:/proxy/mcp-loopback-proxy.py:ro
+    network_mode: service:open-webui
+    depends_on:
+      - open-webui
+      - google-workspace-mcp
+    restart: unless-stopped
+
+volumes:
+  secure-open-webui-data:
+  secure-model-data:
+  secure-google-workspace-creds:
+
+networks:
+  secure-zone:
+    name: hub-ia-secure-zone

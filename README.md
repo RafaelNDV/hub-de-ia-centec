@@ -1,3 +1,294 @@
+# Hub de IA Centec
+
+Prova de conceito institucional baseada no Open WebUI. O projeto oferece uma
+interface unica para modelos locais e APIs de IA, com integracoes que serao
+separadas por nivel de sensibilidade antes da implantacao em producao.
+
+> [!IMPORTANT]
+> O ambiente atual e uma POC mista e contem configuracoes pessoais de teste.
+> Nao envie informacoes sigilosas para modelos de nuvem. Os arquivos de
+> implantacao `cloud` e `secure` sao a base da arquitetura futura; firewall,
+> HTTPS, SSO, cofre de segredos e backups ainda precisam ser configurados no
+> ambiente institucional.
+
+## Objetivo do produto
+
+O objetivo e entregar um unico aplicativo institucional de IA, acessado por um
+unico endereco e um unico login. O usuario podera escolher modelos locais e de
+nuvem no mesmo seletor, sem precisar conhecer a infraestrutura que existe por
+baixo da interface.
+
+A experiencia sera unica, mas a execucao sera separada em duas zonas:
+
+- `cloud`: modelos externos aprovados, sem acesso a dados ou ferramentas
+  institucionais sigilosas;
+- `secure`: modelos executados na infraestrutura do Centec, com acesso
+  controlado a Gmail, documentos, bancos e outros sistemas internos.
+
+Cada conversa pertence a apenas uma zona. Uma conversa cloud pode alternar
+entre modelos cloud e uma conversa segura pode alternar entre modelos locais.
+Para cruzar de uma zona para a outra, o usuario deve iniciar uma conversa nova,
+sem transferir automaticamente o historico anterior.
+
+## Ambientes do projeto
+
+| Ambiente | Arquivo | Portas padrao | Finalidade |
+| --- | --- | --- | --- |
+| POC atual | `docker-compose.yaml` | `3000` | Testes locais com Open WebUI e Ollama |
+| Desenvolvimento | `docker-compose.dev.yaml` | `5173` e `8080` | Frontend e backend com hot reload |
+| Integracao Gmail | `docker-compose.gmail-mcp.yaml` | `8000` local | Gmail MCP usado pela POC |
+| Producao cloud | `docker-compose.cloud.yaml` | `3100` local | Somente modelos e APIs de nuvem |
+| Producao segura | `docker-compose.secure.yaml` | `3200` e `8000` locais | Modelo local e integracoes institucionais |
+
+Os arquivos de producao vinculam as portas apenas a `127.0.0.1`. Em um
+servidor, um proxy reverso com HTTPS publica os servicos para os usuarios.
+
+## Inventario dos arquivos Compose
+
+Um arquivo Compose e uma declaracao de servicos, redes e volumes. Ele nao e um
+container por si so e nem todos os arquivos abaixo devem ser iniciados juntos.
+
+| Arquivo | Origem | Uso |
+| --- | --- | --- |
+| `docker-compose.yaml` | Base atual | POC estavel com Open WebUI e Ollama |
+| `docker-compose.dev.yaml` | Centec | Frontend e backend de desenvolvimento com hot reload |
+| `docker-compose.gmail-mcp.yaml` | Centec | Gmail MCP e proxy local usados na POC |
+| `docker-compose.cloud.yaml` | Centec | Esqueleto da futura implantacao cloud |
+| `docker-compose.secure.yaml` | Centec | Esqueleto da futura implantacao segura |
+| `docker-compose.gpu.yaml` | Open WebUI | Complemento para GPU NVIDIA |
+| `docker-compose.amdgpu.yaml` | Open WebUI | Complemento para GPU AMD/ROCm |
+| `docker-compose.api.yaml` | Open WebUI | Complemento que publica a API do Ollama |
+| `docker-compose.data.yaml` | Open WebUI | Complemento que guarda modelos Ollama em uma pasta escolhida |
+| `docker-compose.otel.yaml` | Open WebUI | Observabilidade com OpenTelemetry e Grafana |
+| `docker-compose.playwright.yaml` | Open WebUI | Navegador automatizado para ferramentas e testes |
+| `docker-compose.a1111-test.yaml` | Open WebUI | Teste de integracao com geracao de imagens |
+
+Arquivos de complemento podem ser combinados com o principal. Por exemplo, o
+suporte a uma GPU NVIDIA seria ativado com:
+
+```powershell
+docker compose -f docker-compose.yaml -f docker-compose.gpu.yaml up -d
+```
+
+## Arquitetura
+
+```text
+                           Usuarios
+                              |
+                      HTTPS + SSO Centec
+                              |
+                    Proxy reverso / router
+                        /             \
+                       /               \
+              Ambiente cloud      Ambiente seguro
+              Open WebUI Cloud     Open WebUI Seguro
+                       |               |          |
+               Gateway de IA       Modelo local  Gmail MCP
+                       |               |          |
+               Provedor externo   Servidor GPU   Google APIs
+```
+
+O desenho acima representa as zonas de execucao. A experiencia final desejada
+adiciona um unico frontend e um roteador de seguranca na frente delas:
+
+```text
+                     https://ia.centec.org.br
+                               |
+                    Frontend unico + SSO
+                               |
+                  Roteador de politica e chats
+                     /                    \
+                    /                      \
+             Backend cloud            Backend seguro
+                VM cloud                 VM segura
+                    |                  /            \
+             Gateway externo     Modelo local     Gmail MCP
+                    |                  |              |
+             APIs aprovadas      Servidor GPU     Google APIs
+```
+
+O navegador nao recebe chaves de provedores e nao decide sozinho para onde
+enviar uma mensagem. O backend valida a zona da conversa, as permissoes do
+usuario, o modelo escolhido, os anexos e as ferramentas solicitadas.
+
+O codigo da aplicacao e unico. A pipeline gera uma imagem versionada, por
+exemplo `hub-ia-centec:v1.2.0`, e as duas implantacoes executam essa mesma
+imagem com configuracoes, redes, segredos e dados diferentes.
+
+```text
+Repositorio -> testes -> docker build -> registry
+                                      |-> VM cloud
+                                      `-> VM segura
+```
+
+### Ambiente cloud
+
+- Habilita apenas uma API compativel com OpenAI.
+- Nao habilita Ollama nem conectores de dados institucionais.
+- Deve acessar o provedor somente por um gateway controlado.
+- Possui banco, historico, segredos e volume exclusivos.
+
+### Ambiente seguro
+
+- Desabilita as APIs OpenAI no backend.
+- Executa inferencia local com Ollama na POC e vLLM ou equivalente no servidor.
+- Hospeda Gmail MCP e futuros conectores institucionais.
+- Deve ter firewall bloqueando provedores de IA externos e liberando somente
+  destinos necessarios, como os endpoints autorizados do Google.
+- Possui banco, historico, credenciais e volumes exclusivos.
+
+Uma conversa que recebeu dados sigilosos deve permanecer no ambiente seguro.
+Para usar um modelo de nuvem, o usuario inicia uma conversa nova e sem contexto
+sensivel. A interface pode ser visualmente unica, mas os backends e os dados
+continuam separados.
+
+## Experiencia do usuario
+
+O usuario acessara somente `https://ia.centec.org.br`. O seletor de modelos
+podera apresentar opcoes como:
+
+```text
+gpt-4o-mini                  Cloud
+Outro modelo aprovado       Cloud
+Llama Centec                 Local seguro
+Qwen Centec                  Local seguro
+```
+
+Ao criar uma conversa, o primeiro modelo e a politica de dados definem a zona.
+O comportamento esperado e:
+
+- permitir troca entre modelos da mesma zona;
+- oferecer `Iniciar nova conversa` ao escolher um modelo de outra zona;
+- nunca copiar automaticamente o historico entre zonas;
+- mostrar Gmail, documentos e ferramentas internas somente na zona segura;
+- bloquear conteudo sensivel enviado para cloud e orientar o usuario a abrir
+  uma conversa segura;
+- mostrar chats cloud e seguros na mesma barra lateral, com identificacao
+  visual clara;
+- usar o mesmo SSO institucional nos dois backends.
+
+A seguranca nao pode depender apenas de botoes ou avisos no frontend. As regras
+devem ser aplicadas no servidor, no gateway e no firewall, pois requisicoes HTTP
+podem ser feitas sem usar a interface.
+
+Os Composes `cloud` e `secure` atuais iniciam instancias completas do Open WebUI
+e representam a separacao da infraestrutura. Antes da producao, eles evoluirao
+para trabalhar atras do frontend e do roteador unicos descritos acima.
+
+## Docker em uma frase
+
+- `Dockerfile`: receita usada para construir a aplicacao.
+- Build: processo que executa a receita.
+- Imagem: pacote versionado e imutavel produzido pela build.
+- Container: instancia em execucao de uma imagem.
+- Volume: armazenamento persistente que sobrevive a recriacao do container.
+- Rede: controla quais servicos conseguem se comunicar diretamente.
+
+Recriar um container normalmente preserva os volumes. Nao execute
+`docker compose down -v` sem confirmar que os dados podem ser apagados.
+
+## Uso atual da POC
+
+Aplicacao estavel:
+
+```powershell
+docker compose up -d
+docker compose ps
+```
+
+Desenvolvimento com hot reload:
+
+```powershell
+docker compose -f docker-compose.dev.yaml up -d
+docker compose -f docker-compose.dev.yaml ps
+```
+
+Integracao Gmail, depois de criar `.env.gmail-mcp` a partir do exemplo:
+
+```powershell
+docker compose -f docker-compose.gmail-mcp.yaml up -d
+```
+
+O primeiro download ou build pode demorar. Os comandos seguintes reutilizam
+imagens, caches e volumes sempre que possivel.
+
+## Implantacoes futuras
+
+As implantacoes cloud e segura ainda nao substituem a POC. Elas exigem uma
+imagem local ou publicada e segredos fornecidos fora do repositorio.
+
+```powershell
+docker build -t hub-ia-centec:local .
+```
+
+Exemplo conceitual para a implantacao cloud:
+
+```powershell
+$env:CLOUD_WEBUI_SECRET_KEY = '<segredo>'
+$env:CLOUD_LLM_API_KEY = '<segredo>'
+docker compose -f docker-compose.cloud.yaml up -d
+```
+
+Exemplo conceitual para a implantacao segura:
+
+```powershell
+$env:SECURE_WEBUI_SECRET_KEY = '<segredo>'
+docker compose -f docker-compose.secure.yaml up -d
+```
+
+Em producao, os segredos devem vir de um cofre de segredos ou da plataforma de
+implantacao, e nao de arquivos versionados. O `.env.gmail-mcp` real e ignorado
+pelo Git; somente `.env.gmail-mcp.example` pode ser publicado.
+
+## Persistencia
+
+| Volume | Conteudo |
+| --- | --- |
+| `open-webui` | Usuarios, configuracoes e chats da POC atual |
+| `ollama` | Modelos locais da POC atual |
+| `open-webui-dev` | Dados separados do ambiente de desenvolvimento |
+| `cloud-open-webui-data` | Dados futuros do ambiente cloud |
+| `secure-open-webui-data` | Dados futuros do ambiente seguro |
+| `secure-model-data` | Pesos dos modelos locais do ambiente seguro |
+| `secure-google-workspace-creds` | Autorizacoes Google do ambiente seguro |
+
+Para producao institucional, a evolucao prevista inclui PostgreSQL, backups
+criptografados, auditoria, SSO, proxy HTTPS, regras de saida de rede e CI/CD.
+
+## Caminho de evolucao
+
+1. Manter a POC mista para aprendizado e testes sem dados sigilosos reais.
+2. Consolidar identidade visual, fluxos de usuario e integracoes necessarias.
+3. Criar perfis logicos `Cloud` e `Local seguro` ainda no ambiente de teste.
+4. Implementar a propriedade imutavel de zona em cada conversa.
+5. Implementar o frontend unico e o roteador de politica no backend.
+6. Adicionar classificacao de dados, DLP, autorizacao por grupos e auditoria.
+7. Publicar uma imagem institucional versionada em um registry controlado.
+8. Implantar a zona cloud e a zona segura com bancos, redes e segredos separados.
+9. Bloquear por firewall o acesso da zona segura a provedores de IA externos.
+10. Migrar GitHub, Google Cloud, OpenAI, dominio e segredos para contas do Centec.
+11. Adicionar PostgreSQL, backups criptografados, monitoramento e CI/CD.
+12. Validar seguranca, recuperacao de dados, desempenho e experiencia antes de
+    liberar o sistema para usuarios reais.
+
+O codigo-fonte permanece unico. A tendencia e gerar uma versao da aplicacao por
+release e implanta-la nas duas zonas com configuracoes diferentes. Servicos de
+apoio, como inferencia local, gateway e Gmail MCP, possuem suas proprias imagens.
+
+## Contexto para outros assistentes
+
+O arquivo [`docs/PROMPT_CONTEXTO_PROJETO.md`](docs/PROMPT_CONTEXTO_PROJETO.md)
+contem um prompt completo e sem segredos para apresentar o projeto a outro GPT.
+Ele registra o estado atual, a arquitetura alvo, as decisoes de seguranca, o
+roadmap e a forma esperada de colaboracao.
+
+## Base Open WebUI
+
+O restante deste documento e a documentacao original do projeto utilizado como
+base. Ela continua disponivel como referencia tecnica e de instalacao.
+
+---
+
 # Open WebUI 👋
 
 ![GitHub stars](https://img.shields.io/github/stars/open-webui/open-webui?style=social)
