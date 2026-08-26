@@ -63,6 +63,7 @@ services:
       - host.docker.internal:host-gateway
     networks:
       - open-webui
+      - open-webui-prod
     healthcheck:
       test: ['CMD', 'curl', '--fail', 'http://localhost:8080/health']
       interval: 10s
@@ -80,3 +81,6 @@ networks:
   open-webui:
     external: true
     name: hub-ia_default
+  open-webui-prod:
+    external: true
+    name: hubdeia_default
