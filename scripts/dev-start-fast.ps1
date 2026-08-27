@@ -33,7 +33,7 @@ function Get-CompatibleNode {
             $major = [int]($version.Split('.')[0])
             $npmExe = Join-Path (Split-Path -Parent $nodeExe) 'npm.cmd'
 
-            if ($major -ge 18 -and $major -le 22 -and (Test-Path -LiteralPath $npmExe)) {
+			if ($major -ge 18 -and $major -le 24 -and (Test-Path -LiteralPath $npmExe)) {
                 return [pscustomobject]@{
                     Node = $nodeExe
                     Npm = $npmExe
@@ -45,7 +45,7 @@ function Get-CompatibleNode {
         }
     }
 
-    throw 'Node.js 18 a 22 nao foi encontrado. Instale o Node.js 22 antes de iniciar o frontend rapido.'
+	throw 'Node.js 18 a 24 nao foi encontrado. Instale uma versao compativel antes de iniciar o frontend rapido.'
 }
 
 Push-Location $repoRoot

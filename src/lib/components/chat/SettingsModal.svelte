@@ -905,7 +905,7 @@
 		</button>
 
 		<div
-			class="hidden md:flex items-center gap-1.5 h-7 px-2 mx-1 mt-1 mb-0.5 shrink-0 rounded-lg text-xs bg-gray-50/70 dark:bg-white/[0.03]"
+			class="centec-settings-search hidden md:flex items-center gap-1.5 h-7 px-2 mx-1 mt-1 mb-0.5 shrink-0 rounded-lg text-xs bg-gray-50/70 dark:bg-white/[0.03]"
 		>
 			<div class="self-center rounded-l-xl bg-transparent">
 				<Search className="size-3.5" strokeWidth="1.5" />

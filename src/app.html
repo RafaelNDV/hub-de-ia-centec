@@ -71,9 +71,7 @@
 					metaThemeColorTag.setAttribute('content', '#01395F');
 				}
 
-				const preloadHref = document.documentElement.classList.contains('dark')
-					? '/static/splash-dark.png'
-					: '/static/splash.png';
+				const preloadHref = '/centec/simbolo-centec.png';
 				const preload = document.createElement('link');
 				preload.rel = 'preload';
 				preload.as = 'image';
@@ -94,15 +92,15 @@
 						}
 					}
 				});
-				const isDarkMode = document.documentElement.classList.contains('dark');
-
 				const logo = document.createElement('img');
 				logo.id = 'logo';
 				logo.style =
-					'position: absolute; width: auto; height: 6rem; top: 44%; left: 50%; transform: translateX(-50%); display:block;';
+					'position: absolute; width: 5.5rem; height: 5.5rem; object-fit: contain; padding: 0.45rem; border: 1px solid #02649b; border-radius: 1.25rem; background: #014572; box-shadow: 0 8px 24px rgba(1, 57, 95, 0.22); top: 44%; left: 50%; transform: translateX(-50%); display: block;';
+				logo.alt = 'Cora - Instituto Centec';
+				logo.className = 'animate-pulse-fast';
 				logo.loading = 'eager';
 				logo.fetchPriority = 'high';
-				logo.src = isDarkMode ? '/static/splash-dark.png' : '/static/splash.png';
+				logo.src = '/centec/simbolo-centec.png';
 
 				document.addEventListener('DOMContentLoaded', function () {
 					const splash = document.getElementById('splash-screen');
@@ -149,8 +147,17 @@
 			>
 				<img
 					id="logo-her"
-					style="width: auto; height: 13rem"
-					src="/static/splash.png"
+					style="
+						width: 5.5rem;
+						height: 5.5rem;
+						object-fit: contain;
+						padding: 0.45rem;
+						border: 1px solid #02649b;
+						border-radius: 1.25rem;
+						background: #014572;
+					"
+					src="/centec/simbolo-centec.png"
+					alt="Cora - Instituto Centec"
 					loading="eager"
 					fetchpriority="high"
 					class="animate-pulse-fast"
@@ -225,7 +232,6 @@
 
 		html.her #logo-her {
 			display: block;
-			filter: invert(1);
 		}
 
 		html.her #progress-background {
