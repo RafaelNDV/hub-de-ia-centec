@@ -23,7 +23,7 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_NAME=Cora'
-      - 'WEBUI_SECRET_KEY='
+      - 'WEBUI_SECRET_KEY_FILE=/app/backend/data/.webui_secret_key'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped
