@@ -1289,9 +1289,167 @@ html.high-contrast:not(.dark) .shimmer {
 	color: #d8edf8;
 }
 
+.centec-chat-welcome {
+	position: relative;
+}
+
+.centec-model-emblem,
+.centec-assistant-emblem {
+	border: 1px solid rgb(2 100 155 / 55%);
+	border-radius: 0.5rem;
+	background: var(--centec-primary);
+	object-fit: contain;
+	padding: 0.2rem;
+	box-shadow:
+		0 0 0 2px rgb(255 255 255 / 75%),
+		0 2px 7px rgb(1 57 95 / 18%);
+}
+
+.dark .centec-model-emblem,
+.dark .centec-assistant-emblem {
+	border-color: rgb(60 164 218 / 70%);
+	box-shadow:
+		0 0 0 2px #151515,
+		0 2px 8px rgb(0 0 0 / 30%);
+}
+
+.centec-chat-heading {
+	min-width: 0;
+	line-height: 1.15;
+}
+
+.centec-chat-kicker {
+	margin-bottom: 0.22rem;
+	color: var(--centec-primary-medium);
+	font-size: 0.625rem;
+	font-weight: 700;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+.dark .centec-chat-kicker {
+	color: #8fd0f0;
+}
+
+.centec-chat-model-name {
+	font-weight: 580;
+}
+
+#message-input-container.centec-chat-composer {
+	border-color: #cfdde4;
+	border-radius: 1.5rem;
+	background: rgb(255 255 255 / 82%);
+	box-shadow: 0 5px 18px rgb(22 49 63 / 7%);
+}
+
+#message-input-container.centec-chat-composer:hover {
+	border-color: #aec8d5;
+}
+
+#message-input-container.centec-chat-composer:focus-within {
+	border-color: var(--centec-primary-medium);
+	box-shadow:
+		inset 3px 0 0 var(--centec-accent),
+		0 0 0 3px rgb(2 100 155 / 10%);
+}
+
+.dark #message-input-container.centec-chat-composer {
+	border-color: #334650;
+	background: rgb(27 32 35 / 92%);
+	box-shadow: 0 5px 18px rgb(0 0 0 / 18%);
+}
+
+.dark #message-input-container.centec-chat-composer:hover {
+	border-color: #45616f;
+}
+
+.dark #message-input-container.centec-chat-composer:focus-within {
+	border-color: var(--centec-primary-medium);
+	box-shadow:
+		inset 3px 0 0 var(--centec-accent),
+		0 0 0 3px rgb(2 100 155 / 14%);
+}
+
+#message-input-container .centec-chat-action {
+	color: var(--centec-primary);
+}
+
+#message-input-container .centec-chat-action:hover {
+	background: var(--centec-primary-light);
+	color: var(--centec-primary-dark);
+}
+
+#message-input-container .centec-chat-action-accent {
+	color: var(--centec-accent);
+}
+
+.dark #message-input-container .centec-chat-action {
+	color: #a8d9f1;
+}
+
+.dark #message-input-container .centec-chat-action:hover {
+	background: rgb(2 100 155 / 22%);
+	color: #e7f3fb;
+}
+
+.dark #message-input-container .centec-chat-action-accent {
+	color: #ff9a62;
+}
+
+#message-input-container .centec-chat-primary-action:not(:disabled) {
+	background: var(--centec-primary);
+	color: #fff;
+}
+
+#message-input-container .centec-chat-primary-action:not(:disabled):hover {
+	background: var(--centec-primary-dark);
+	color: #fff;
+}
+
+.centec-assistant-name {
+	color: var(--centec-primary-dark);
+	font-weight: 650;
+}
+
+.dark .centec-assistant-name {
+	color: #d8edf8;
+}
+
+input:not([type]),
+input[type='text'],
+input[type='search'],
+input[type='email'],
+input[type='password'],
+input[type='url'],
+input[type='tel'],
+input[type='number'],
+textarea {
+	border-radius: 0.75rem;
+}
+
+.centec-settings-search {
+	border-radius: 0.75rem;
+	transition:
+		background-color 120ms ease,
+		box-shadow 120ms ease;
+}
+
+.centec-settings-search:focus-within {
+	background: #fff;
+	box-shadow: 0 0 0 2px var(--centec-primary-medium);
+}
+
+.dark .centec-settings-search:focus-within {
+	background: rgb(2 100 155 / 12%);
+}
+
+#search-input-settings-modal:focus-visible {
+	outline: none;
+}
+
 :where(a, button, input, textarea, select):focus-visible {
 	outline: 2px solid var(--centec-primary-medium);
-	outline-offset: 2px;
+	outline-offset: 1px;
 }
 
 @media (max-width: 640px) {

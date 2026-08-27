@@ -19,7 +19,7 @@
 	} from '$lib/stores';
 	import { refreshChatList } from '$lib/stores/chatList';
 	import { sanitizeResponseContent, extractCurlyBraceWords } from '$lib/utils';
-	import { WEBUI_API_BASE_URL, WEBUI_BASE_URL } from '$lib/constants';
+	import { WEBUI_BASE_URL } from '$lib/constants';
 
 	import Suggestions from './Suggestions.svelte';
 	import Tooltip from '$lib/components/common/Tooltip.svelte';
@@ -109,7 +109,9 @@
 					}}
 				/>
 			{:else}
-				<div class="flex flex-row justify-center gap-2.5 @sm:gap-3 w-fit px-5 max-w-xl">
+				<div
+					class="centec-chat-welcome flex flex-row justify-center gap-2.5 @sm:gap-3 w-fit px-5 max-w-xl"
+				>
 					<div class="flex shrink-0 justify-center">
 						<div class="flex -space-x-4 mb-0.5" in:fade={{ duration: 100 }}>
 							{#each models as model, modelIdx}
@@ -129,13 +131,10 @@
 										}}
 									>
 										<img
-											src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
-											class=" size-9 @sm:size-10 rounded-2xl"
+											src="{WEBUI_BASE_URL}/centec/simbolo-centec.png"
+											class="centec-model-emblem size-9 @sm:size-10"
 											aria-hidden="true"
 											draggable="false"
-											on:error={(e) => {
-												e.currentTarget.src = '/favicon.png';
-											}}
 										/>
 									</button>
 								</Tooltip>
@@ -144,16 +143,17 @@
 					</div>
 
 					<div
-						class=" text-2xl @sm:text-2xl line-clamp-1 flex items-center"
+						class="centec-chat-heading text-2xl @sm:text-2xl flex flex-col items-start justify-center"
 						in:fade={{ duration: 100 }}
 					>
+						<span class="centec-chat-kicker">Cora / Instituto Centec</span>
 						{#if models[selectedModelIdx]?.name}
 							<Tooltip
 								content={models[selectedModelIdx]?.name}
 								placement="top"
 								className=" flex items-center "
 							>
-								<span class="line-clamp-1">
+								<span class="centec-chat-model-name line-clamp-1">
 									{models[selectedModelIdx]?.name}
 								</span>
 							</Tooltip>

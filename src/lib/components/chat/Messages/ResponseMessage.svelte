@@ -654,15 +654,15 @@
 
 {#key message.id}
 	<div
-		class=" flex w-full message-{message.id}"
+		class="centec-assistant-message flex w-full message-{message.id}"
 		id="message-{message.id}"
 		dir={$settings.chatDirection}
 		style="scroll-margin-top: 3rem;"
 	>
 		<div class={`shrink-0 ltr:mr-2 rtl:ml-2 hidden @lg:flex mt-0.5 `}>
 			<ProfileImage
-				src={`${WEBUI_API_BASE_URL}/models/model/profile/image?id=${model?.id}&lang=${$i18n.language}`}
-				className={'size-7 assistant-message-profile-image'}
+				src={`${WEBUI_BASE_URL}/centec/simbolo-centec.png`}
+				className={'size-7 assistant-message-profile-image centec-assistant-emblem'}
 			/>
 		</div>
 
@@ -670,7 +670,10 @@
 			{#if !compactPreview}
 				<Name>
 					<Tooltip content={model?.name ?? message.model} placement="top-start">
-						<span id="response-message-model-name" class="line-clamp-1 text-black dark:text-white">
+						<span
+							id="response-message-model-name"
+							class="centec-assistant-name line-clamp-1 text-black dark:text-white"
+						>
 							{model?.name ?? message.model}
 						</span>
 					</Tooltip>
