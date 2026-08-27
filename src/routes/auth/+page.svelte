@@ -228,7 +228,7 @@
 			class="fixed bg-transparent min-h-screen w-full flex justify-center z-50 text-black dark:text-white"
 			id="auth-container"
 		>
-			<div class="centec-auth-shell w-full px-6 sm:px-10 min-h-screen flex flex-col text-center">
+			<div class="centec-auth-shell w-full px-5 sm:px-10 min-h-screen flex flex-col text-center">
 				{#if ($config?.features.auth_trusted_header ?? false) || $config?.features.auth === false}
 					<div class=" my-auto pb-10 w-full sm:max-w-md">
 						<div
@@ -249,7 +249,7 @@
 							id="auth-login-card"
 							class="centec-auth-card sm:max-w-md my-auto w-full dark:text-gray-100"
 						>
-							<div class="centec-auth-eyebrow" aria-label="Centec">CENTEC</div>
+							<div class="centec-auth-eyebrow" aria-label="Instituto Centec">INSTITUTO CENTEC</div>
 							{#if $config?.metadata?.auth_logo_position === 'center'}
 								<div class="flex justify-center mb-6">
 									<img
@@ -280,9 +280,7 @@
 											{$i18n.t(`Sign up to {{WEBUI_NAME}}`, { WEBUI_NAME: $WEBUI_NAME })}
 										{/if}
 									</div>
-									<div class="centec-auth-subtitle">
-										Ambiente institucional de inteligência artificial
-									</div>
+									<div class="centec-auth-subtitle">Acesso institucional</div>
 
 									{#if $config?.onboarding ?? false}
 										<div class="mt-1 text-xs font-normal text-gray-600 dark:text-gray-500">
@@ -390,7 +388,7 @@
 									{#if $config?.features.enable_login_form || $config?.features.enable_ldap || form}
 										{#if mode === 'ldap'}
 											<button
-												class="centec-auth-primary bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 flex justify-center"
+												class="centec-auth-primary bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-md font-medium text-sm py-2.5 disabled:opacity-50 flex justify-center"
 												type="submit"
 												disabled={submitting}
 											>
@@ -404,7 +402,7 @@
 											</button>
 										{:else}
 											<button
-												class="centec-auth-primary bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-full font-medium text-sm py-2.5 disabled:opacity-50 flex justify-center"
+												class="centec-auth-primary bg-gray-700/5 hover:bg-gray-700/10 dark:bg-gray-100/5 dark:hover:bg-gray-100/10 dark:text-gray-300 dark:hover:text-white transition w-full rounded-md font-medium text-sm py-2.5 disabled:opacity-50 flex justify-center"
 												type="submit"
 												disabled={submitting}
 											>
@@ -606,9 +604,7 @@
 									</button>
 								</div>
 							{/if}
-							<div class="centec-auth-attribution">
-								Prova de conceito institucional · Powered by Open WebUI
-							</div>
+							<div class="centec-auth-attribution">Powered by Open WebUI</div>
 						</div>
 						{#if $config?.metadata?.login_footer}
 							<div class="max-w-3xl mx-auto">
@@ -623,19 +619,18 @@
 		</div>
 
 		{#if !$config?.metadata?.auth_logo_position}
-			<div class="fixed m-10 z-50">
-				<div class="flex space-x-2">
-					<div class=" self-center">
-						<img
-							id="logo"
-							crossorigin="anonymous"
-							src="{WEBUI_BASE_URL}/static/favicon.png"
-							class=" w-6 rounded-full"
-							alt=""
-						/>
-					</div>
-				</div>
-			</div>
+			<a class="centec-auth-masthead" href="/" aria-label={$WEBUI_NAME}>
+				<img
+					id="logo"
+					src="{WEBUI_BASE_URL}/centec/logo-centec-horizontal.png"
+					class="centec-auth-wordmark"
+					alt="Instituto Centec"
+				/>
+				<span class="centec-auth-masthead-copy">
+					<strong>Cora</strong>
+					<span>Powered by Open WebUI</span>
+				</span>
+			</a>
 		{/if}
 	{/if}
 </div>

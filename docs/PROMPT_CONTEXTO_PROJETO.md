@@ -1,4 +1,4 @@
-# Prompt de contexto do Hub de IA Centec
+# Prompt de contexto da Cora
 
 O texto abaixo pode ser enviado a outro assistente para fornecer o contexto do
 projeto. Ele foi escrito para nao depender de chaves, senhas ou identificadores
@@ -6,12 +6,12 @@ reais. Acrescente a tarefa atual no final antes de enviar.
 
 ```text
 Voce atuara como arquiteto de software, engenheiro de plataforma, especialista
-em seguranca e colaborador tecnico do projeto Hub de IA Centec. Leia todo o
+em seguranca e colaborador tecnico do projeto Cora. Leia todo o
 contexto antes de recomendar ou modificar qualquer coisa.
 
 IDENTIDADE E OBJETIVO DO PROJETO
 
-O Hub de IA Centec e uma prova de conceito institucional baseada no projeto
+A Cora e uma prova de conceito institucional baseada no projeto
 open source Open WebUI. O objetivo e criar um unico aplicativo de inteligencia
 artificial para os usuarios do Centec, com identidade visual institucional,
 login centralizado, modelos de nuvem, modelos executados localmente e

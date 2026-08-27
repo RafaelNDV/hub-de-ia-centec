@@ -930,7 +930,7 @@
 
 {#if !$mobile && !$showSidebar}
 	<div
-		class=" w-[42px] shrink-0 py-1 px-1 flex flex-col justify-between text-gray-700 dark:text-gray-300 hover:bg-gray-50/30 dark:hover:bg-gray-800/30 h-full z-10 transition-all border-e-[0.5px] border-gray-50 dark:border-gray-850/30"
+		class="centec-sidebar centec-sidebar-collapsed w-[42px] shrink-0 py-1 px-1 flex flex-col justify-between text-gray-700 dark:text-gray-300 h-full z-10 transition-all border-e-[0.5px] border-gray-50 dark:border-gray-850/30"
 		id="sidebar"
 		role="navigation"
 		aria-label={$i18n.t('Chat history')}
@@ -953,12 +953,12 @@
 						aria-label={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}
 					>
 						<div
-							class=" self-center flex size-[30px] items-center justify-center rounded-lg transition group-hover:bg-gray-50 dark:group-hover:bg-gray-900"
+							class="centec-collapsed-brand self-center flex size-[30px] items-center justify-center rounded-lg transition"
 						>
 							<img
-								src="{WEBUI_BASE_URL}/static/favicon.png"
-								class="sidebar-new-chat-icon size-5 rounded-full group-hover:hidden"
-								alt=""
+								src="{WEBUI_BASE_URL}/centec/simbolo-centec.png"
+								class="centec-sidebar-logo sidebar-new-chat-icon size-5 rounded-md group-hover:hidden"
+								alt="Centec"
 							/>
 
 							<Sidebar className="size-4 hidden group-hover:flex" />
@@ -1035,8 +1035,8 @@
 										class=" self-center flex size-[30px] items-center justify-center rounded-lg transition {itemId ===
 										activeMenuItemId
 											? ($settings?.highContrastMode ?? false)
-												? 'bg-black/[0.035] dark:bg-white/[0.06]'
-												: 'bg-black/[0.035] dark:bg-white/[0.045]'
+												? 'centec-collapsed-nav-active bg-black/[0.035] dark:bg-white/[0.06]'
+												: 'centec-collapsed-nav-active bg-black/[0.035] dark:bg-white/[0.045]'
 											: 'group-hover:bg-gray-50 dark:group-hover:bg-gray-900'}"
 									>
 										{#if itemId === 'notes'}
@@ -1133,10 +1133,9 @@
 					on:click={newChatHandler}
 				>
 					<img
-						crossorigin="anonymous"
-						src="{WEBUI_BASE_URL}/static/favicon.png"
-						class="centec-sidebar-logo sidebar-new-chat-icon size-5 rounded-full"
-						alt=""
+						src="{WEBUI_BASE_URL}/centec/simbolo-centec.png"
+						class="centec-sidebar-logo sidebar-new-chat-icon size-5 rounded-md"
+						alt="Centec"
 					/>
 				</a>
 
@@ -1147,7 +1146,7 @@
 					>
 						<span>{$WEBUI_NAME.replace(' (Open WebUI)', '')}</span>
 						{#if $WEBUI_NAME.includes('Open WebUI')}
-							<span class="centec-sidebar-powered">Open WebUI</span>
+							<span class="centec-sidebar-powered">Powered by Open WebUI</span>
 						{/if}
 					</div>
 				</a>
@@ -1191,13 +1190,15 @@
 					<div class="px-1 flex justify-center text-gray-700 dark:text-gray-300">
 						<a
 							id="sidebar-new-chat-button"
-							class="centec-new-chat group grow flex items-center space-x-2 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
+							class="centec-new-chat group grow flex items-center space-x-2 rounded-md px-2 py-1.5 transition outline-none"
 							href="/"
 							draggable="false"
 							on:click={newChatHandler}
 							aria-label={$i18n.t('New Chat')}
 						>
-							<div class="self-center flex size-4 shrink-0 items-center justify-center">
+							<div
+								class="centec-new-chat-icon self-center flex size-4 shrink-0 items-center justify-center"
+							>
 								<EditPencilIcon className=" size-4" strokeWidth="1.5" />
 							</div>
 
@@ -1212,7 +1213,7 @@
 					<div class="px-1 flex justify-center text-gray-700 dark:text-gray-300">
 						<button
 							id="sidebar-search-button"
-							class="group grow flex items-center space-x-2 rounded-xl px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
+							class="centec-nav-item group grow flex items-center space-x-2 rounded-md px-2 py-1.5 hover:bg-gray-50 dark:hover:bg-gray-900 transition outline-none"
 							on:click={() => {
 								showSearch.set(true);
 							}}
@@ -1240,7 +1241,7 @@
 								>
 									<a
 										id="sidebar-{itemId}-button"
-										class="centec-nav-item grow flex items-center space-x-2 rounded-xl px-2 py-1.5 transition {itemId ===
+										class="centec-nav-item grow flex items-center space-x-2 rounded-md px-2 py-1.5 transition {itemId ===
 										activeMenuItemId
 											? ($settings?.highContrastMode ?? false)
 												? 'centec-nav-item-active bg-black/[0.035] dark:bg-white/[0.06]'

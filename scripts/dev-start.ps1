@@ -47,9 +47,9 @@ try {
         }
     }
 
-    Write-Host '[40%] Iniciando frontend e backend de desenvolvimento...'
+    Write-Host '[40%] Iniciando frontend em container e backend de desenvolvimento...'
     $env:WEBUI_DOCKER_TAG = 'v0.11.0'
-    docker compose -f $devCompose up -d --no-build --pull missing
+    docker compose -f $devCompose --profile container-frontend up -d --no-build --pull missing
     if ($LASTEXITCODE -ne 0) {
         throw 'Nao foi possivel iniciar o ambiente de desenvolvimento.'
     }
@@ -86,7 +86,7 @@ try {
         throw 'O ambiente dev nao ficou pronto dentro de quinze minutos.'
     }
 
-    Write-Host '[100%] Ambiente de desenvolvimento pronto.'
+    Write-Host '[100%] Ambiente de desenvolvimento em containers pronto.'
     Write-Host 'Frontend: http://localhost:5173'
     Write-Host 'Backend:  http://localhost:8080'
     Write-Host 'Os containers continuarao ativos depois que este terminal for fechado.'

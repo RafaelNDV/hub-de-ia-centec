@@ -1,4 +1,4 @@
-# Hub de IA Centec
+# Cora
 
 Prova de conceito institucional baseada no Open WebUI. O projeto oferece uma
 interface unica para modelos locais e APIs de IA, com integracoes que serao
@@ -35,7 +35,7 @@ sem transferir automaticamente o historico anterior.
 | Ambiente | Arquivo | Portas padrao | Finalidade |
 | --- | --- | --- | --- |
 | POC atual | `docker-compose.yaml` | `3000` | Testes locais com Open WebUI e Ollama |
-| Desenvolvimento | `docker-compose.dev.yaml` | `5173` e `8080` | Frontend e backend com hot reload |
+| Desenvolvimento | `docker-compose.dev.yaml` | `5173` e `8080` | Frontend nativo rapido e backend em container com hot reload |
 | Integracao Gmail | `docker-compose.gmail-mcp.yaml` | `8000` local | Gmail MCP usado pela POC |
 | Producao cloud | `docker-compose.cloud.yaml` | `3100` local | Somente modelos e APIs de nuvem |
 | Producao segura | `docker-compose.secure.yaml` | `3200` e `8000` locais | Modelo local e integracoes institucionais |
@@ -51,7 +51,7 @@ container por si so e nem todos os arquivos abaixo devem ser iniciados juntos.
 | Arquivo | Origem | Uso |
 | --- | --- | --- |
 | `docker-compose.yaml` | Base atual | POC estavel com Open WebUI e Ollama |
-| `docker-compose.dev.yaml` | Centec | Frontend e backend de desenvolvimento com hot reload |
+| `docker-compose.dev.yaml` | Centec | Backend dev e frontend opcional em container com hot reload |
 | `docker-compose.gmail-mcp.yaml` | Centec | Gmail MCP e proxy local usados na POC |
 | `docker-compose.cloud.yaml` | Centec | Esqueleto da futura implantacao cloud |
 | `docker-compose.secure.yaml` | Centec | Esqueleto da futura implantacao segura |
@@ -196,12 +196,27 @@ docker compose up -d
 docker compose ps
 ```
 
-Desenvolvimento com hot reload:
+Desenvolvimento rapido com hot reload:
 
 ```powershell
-docker compose -f docker-compose.dev.yaml up -d
-docker compose -f docker-compose.dev.yaml ps
+.\scripts\dev-start-fast.ps1
 ```
+
+No Windows, tambem e possivel abrir `Iniciar Cora Dev.cmd` com dois cliques.
+O script inicia apenas o backend em container, espera a porta `8080`, executa o
+Vite diretamente no Windows e abre `http://localhost:5173`. Mantenha a janela
+do atalho aberta; fecha-la encerra somente o frontend nativo. Na primeira
+execucao, o script instala as dependencias locais. As seguintes reutilizam o
+`node_modules` enquanto o `package-lock.json` nao mudar.
+
+O frontend alternativo em container continua disponivel:
+
+```powershell
+docker compose -f docker-compose.dev.yaml --profile container-frontend up -d
+```
+
+O frontend nativo e o frontend em container nao devem ser executados ao mesmo
+tempo, pois ambos utilizam a porta `5173`.
 
 No ambiente de desenvolvimento, acesse `http://localhost:5173` neste notebook
 ou `http://IP_DO_NOTEBOOK:5173` em outro computador da mesma rede. O Vite atua
