@@ -12,7 +12,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    image: ghcr.io/open-webui/open-webui:${WEBUI_DOCKER_TAG-main}
+    image: cora:local
     container_name: open-webui
     volumes:
       - open-webui:/app/backend/data
@@ -23,7 +23,7 @@ services:
     environment:
       - 'OLLAMA_BASE_URL=http://ollama:11434'
       - 'WEBUI_NAME=Cora'
-      - 'WEBUI_SECRET_KEY='
+      - 'WEBUI_SECRET_KEY_FILE=/app/backend/data/.webui_secret_key'
     extra_hosts:
       - host.docker.internal:host-gateway
     restart: unless-stopped

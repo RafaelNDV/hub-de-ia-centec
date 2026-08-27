@@ -40,7 +40,8 @@ RUN npm ci --force
 
 COPY . .
 ENV APP_BUILD_HASH=${BUILD_HASH}
-RUN npm run build
+RUN npm run pyodide:fetch
+RUN NODE_OPTIONS=--max-old-space-size=4096 ./node_modules/.bin/vite build
 
 ######## WebUI backend ########
 FROM python:3.11-slim-bookworm AS base
