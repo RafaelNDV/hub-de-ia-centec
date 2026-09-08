@@ -1,0 +1,71 @@
+name: cora-demo-data
+
+services:
+  demo-postgres:
+    image: postgres:16-alpine
+    pull_policy: missing
+    container_name: cora-demo-postgres
+    environment:
+      POSTGRES_DB: cora_demo
+      POSTGRES_USER: cora_demo_admin
+      POSTGRES_PASSWORD: cora_demo_admin_local
+    ports:
+      - 127.0.0.1:5433:5432
+    volumes:
+      - cora-demo-postgres-data:/var/lib/postgresql/data
+      - ./integrations/demo-db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U cora_demo_admin -d cora_demo']
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      - demo-data
+    restart: unless-stopped
+
+  demo-db-mcp:
+    build:
+      context: ./integrations/demo-db/mcp
+    image: cora-demo-db-mcp:local
+    container_name: cora-demo-db-mcp
+    environment:
+      DATABASE_URL: postgresql://cora_demo_reader:cora_demo_reader_local@demo-postgres:5432/cora_demo
+      MCP_HOST: 0.0.0.0
+      MCP_PORT: '8001'
+    ports:
+      - 127.0.0.1:8001:8001
+    depends_on:
+      demo-postgres:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=3)"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+    networks:
+      - demo-data
+      - open-webui-dev
+      - open-webui-prod
+    restart: unless-stopped
+
+volumes:
+  cora-demo-postgres-data:
+    name: cora-demo-postgres-data
+
+networks:
+  demo-data:
+    name: cora-demo-data
+  open-webui-dev:
+    external: true
+    name: hub-ia_default
+  open-webui-prod:
+    external: true
+    name: hubdeia_default
