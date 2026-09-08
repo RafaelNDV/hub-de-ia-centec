@@ -48,7 +48,9 @@ services:
       UPSTREAM_PORT: '8000'
     volumes:
       - ./scripts/mcp-loopback-proxy.py:/proxy/mcp-loopback-proxy.py:ro
-    network_mode: container:open-webui
+    # The Gmail integration is currently used by the development backend.
+    # Override MCP_OPEN_WEBUI_CONTAINER=open-webui when targeting port 3000.
+    network_mode: container:${MCP_OPEN_WEBUI_CONTAINER:-hub-ia-backend-dev}
     depends_on:
       google-workspace-mcp:
         condition: service_healthy
