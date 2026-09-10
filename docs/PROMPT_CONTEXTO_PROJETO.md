@@ -121,6 +121,12 @@ sem confirmar backup e impacto.
 
 ARQUITETURA ALVO
 
+Antes de planejar ou implementar a separacao Cloud/Segura, leia integralmente
+`docs/ARQUITETURA_ZONAS_DE_CONFIANCA.md`. Esse e o documento tecnico
+autoritativo para as invariantes, o modelo de ameacas, os fluxos de dados, a
+migracao, as fases e os testes. O resumo abaixo serve apenas como contexto
+rapido e nao substitui aquele plano.
+
 O usuario acessa somente o dominio institucional:
 
                           Usuarios
@@ -291,6 +297,11 @@ da POC pelo institucional, os usuarios provavelmente precisarao autorizar de
 novo, o que e esperado.
 
 ROADMAP RECOMENDADO
+
+O roadmap detalhado, com criterios de aceite e rollback por fase, esta em
+`docs/ARQUITETURA_ZONAS_DE_CONFIANCA.md`. Em caso de divergencia, preservar
+as invariantes de seguranca desse documento e registrar uma decisao
+arquitetural antes de mudar a direcao.
 
 1. Continuar usando a POC mista para aprendizado e testes sem dados sigilosos.
 2. Consolidar a personalizacao visual e os fluxos essenciais.

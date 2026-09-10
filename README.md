@@ -175,6 +175,19 @@ Os Composes `cloud` e `secure` atuais iniciam instancias completas do Open WebUI
 e representam a separacao da infraestrutura. Antes da producao, eles evoluirao
 para trabalhar atras do frontend e do roteador unicos descritos acima.
 
+### Plano tecnico da separacao
+
+O documento
+[`docs/ARQUITETURA_ZONAS_DE_CONFIANCA.md`](docs/ARQUITETURA_ZONAS_DE_CONFIANCA.md)
+e a referencia detalhada para esse desenvolvimento. Ele registra as invariantes
+de seguranca, os fluxos de chat, memoria, arquivos, RAG, MCP e audio, a
+estrategia de rede e identidade, a migracao do banco, as fases de implementacao
+e a matriz de testes de nao vazamento.
+
+Esse documento descreve a arquitetura alvo. A POC atual nao deve ser tratada
+como pronta para dados sigilosos ate que os criterios de aceite registrados nele
+tenham sido cumpridos em ambiente local e em staging institucional.
+
 ## Docker em uma frase
 
 - `Dockerfile`: receita usada para construir a aplicacao.
